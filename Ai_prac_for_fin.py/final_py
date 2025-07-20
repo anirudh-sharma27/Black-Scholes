@@ -1,0 +1,35 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from tensorflow.keras.models import load_model
+from pre import load_and_preprocess
+
+def predict_and_plot(model_path="lstm_model.h5"):
+    X_train, y_train, X_test, y_test, scaler = load_and_preprocess()
+
+    model = load_model(model_path)
+
+    # Make predictions
+    y_pred = model.predict(X_test)
+
+    # Invert the scaling
+    y_pred_actual = scaler.inverse_transform(y_pred)
+    y_test_actual = scaler.inverse_transform(y_test.reshape(-1, 1))
+
+    # Plot
+    plt.figure(figsize=(12, 6))
+    plt.plot(y_test_actual, label='Actual')
+    plt.plot(y_pred_actual, label='Predicted')
+    plt.title('Stock Price Prediction using LSTM')
+    plt.xlabel('Time Step')
+    plt.ylabel('Price')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+    # Print some values
+    print("Sample Prediction vs Actual:")
+    for p, a in zip(y_pred_actual.flatten()[:5], y_test_actual.flatten()[:5]):
+        print(f"Predicted: {p:.2f} | Actual: {a:.2f}")
+
+if __name__ == "__main__":
+    predict_and_plot()
